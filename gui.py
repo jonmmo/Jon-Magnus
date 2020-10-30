@@ -42,7 +42,7 @@ def update_data():
         players.append(row['name'] + str(row['rating']))
 
     ranking.clear()
-    for i in range(0, len(players)-1):
+    for i in range(0, len(players)):
         ranking.insert(i, players[i]) 
 
 def save_match(winner, loser):
