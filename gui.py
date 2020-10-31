@@ -12,6 +12,9 @@ def get_all_players():
     df = pd.read_sql_query('''SELECT * FROM USER''', con)
     return df
 
+
+
+
 def update_rating(player):
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     print(df)
@@ -69,6 +72,16 @@ def register_match(players):
     register.show()
     
 app = App("Pool system", layout = "grid")
+
+def write_player(new_player):
+    sql = 'INSERT INTO USER (name, rating) values(?, ?)'
+    data = [
+        (new_player, 1000)
+        ]
+    with con:
+        con.executemany(sql, data)
+
+
 
 # Get data
 data = get_all_players()
