@@ -95,6 +95,7 @@ def new_player():
 # Get data
 data = get_all_players()
 data = data.sort_values('rating', ascending=False)
+data = data.reset_index(drop=True)
 print(data)
 players = []
 
