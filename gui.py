@@ -97,8 +97,7 @@ data = get_all_players()
 data = data.sort_values('rating', ascending=False)
 print(data)
 players = []
-for i, row in data.iterrows():
-    players.append(row['name'] + str(row['rating']))
+
 
 names = data.name
 matches = pd.read_sql_query("SELECT * FROM MATCH", con)
@@ -114,14 +113,33 @@ New_player_window.hide()
 
 
 # Main window
-headline = Text(app, text="Pool system rating for C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,2,1], align="top")
+headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
+rating = Text(app, text="Rankingliste", size = 20, grid=[0,1,3,1])
+navn = Text(app, text="Navn", grid =[1,2], size=14)
+score = Text(app, text="Score", grid=[2,2], size=14)
+for i, row in data.iterrows():
+    text = str(i+1) + "."
+    place = Text(app, text=text, grid=[0,i+3])
+    name = Text(app, text=row['name'], grid=[1,i+3])
+    rank = Text(app, text=str(row['rating']), grid=[2,i+3])
 
-ranking = ListBox(app, items=players, grid=[0,1])
-last_games= ListBox(app, items=["Jon Magnus vs Henrik"], grid=[1,1])
+rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
+last_games = matches.tail(10)
+print(last_games)
+vinner = Text(app, text="Vinner", grid=[4,2], size=14)
+taper = Text(app, text="Taper", grid=[5,2], size=14)
+i = 0
+for j, row in last_games.iterrows():
+    winner = Text(app, text=row['winner'], grid=[4,i+3], color="green")
+    loser = Text(app, text=row['loser'], grid=[5,i+3], color="red")
+    i += 1
 
-register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[0,3,2,1])
 
-new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[0,4,2,1])
+#ranking = ListBox(app, items=players, grid=[0,1])
+#last_games= ListBox(app, items=["Jon Magnus vs Henrik"], grid=[1,1])
+register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
+
+new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
 
 
 
