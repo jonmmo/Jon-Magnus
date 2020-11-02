@@ -1,4 +1,4 @@
-from guizero import App, Text, PushButton, ListBox, Window, Combo
+from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox
 import sqlite3 as sl
 import pandas as pd
 #from utils import *
@@ -81,7 +81,16 @@ def write_player(new_player):
     with con:
         con.executemany(sql, data)
 
+    New_player_window.hide()
+    update_data()
 
+def new_player():
+    title = Text(New_player_window, text="New Player", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
+    label1 = Text(New_player_window, text="New player:",  grid=[0,1])
+    player = TextBox(New_player_window,grid=[0,2])
+    save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
+    New_player_window.show()
+    
 
 # Get data
 data = get_all_players()
@@ -99,6 +108,11 @@ print(matches)
 register = Window(app, title="Registrer resultat", layout="grid")
 register.hide()
 
+# New Player window
+New_player_window = Window(app, title="Registrer resultat", layout="grid")
+New_player_window.hide()
+
+
 # Main window
 headline = Text(app, text="Pool system rating for C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,2,1], align="top")
 
@@ -106,6 +120,8 @@ ranking = ListBox(app, items=players, grid=[0,1])
 last_games= ListBox(app, items=["Jon Magnus vs Henrik"], grid=[1,1])
 
 register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[0,3,2,1])
+
+new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[0,4,2,1])
 
 
 
