@@ -12,20 +12,14 @@ def get_all_players():
     df = pd.read_sql_query('''SELECT * FROM USER''', con)
     return df
 
-
-
-
 def update_rating(player):
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
-    print(df)
     player_opt_ranking_total = df.loc[df['winner'] == player, 'loser_rating'].sum() + df.loc[df['loser'] == player, 'winner_rating'].sum()
 
     player_win_loss = len(df[df['winner']==player]) - len(df[df['loser']==player])
-    print(player_win_loss)
     total_games = len(df[df['winner']==player]) + len(df[df['loser']==player])
   
     new_rating = round((player_opt_ranking_total + 400 * player_win_loss)/total_games)
-    print(new_rating)
 
     c = con.cursor()
     c.execute('''UPDATE USER SET rating = ? WHERE name = ?''', (new_rating, player))
@@ -35,18 +29,6 @@ def get_rating(player):
     r = pd.read_sql_query('''SELECT rating FROM USER WHERE name = ?''', con, params=[player])
     rating = r['rating'].iloc[0]
     return rating
-
-def update_data():
-    data = get_all_players()
-    data = data.sort_values('rating', ascending=False)
-    print(data)
-    players = []
-    for i, row in data.iterrows():
-        players.append(row['name'] + str(row['rating']))
-
-    ranking.clear()
-    for i in range(0, len(players)):
-        ranking.insert(i, players[i]) 
 
 def save_match(winner, loser):
     sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating) values(?, ?, ?, ?)'
@@ -60,7 +42,7 @@ def save_match(winner, loser):
     update_rating(winner)
     update_rating(loser)
     register.hide()
-    update_data()
+    make_GUI()
 
 def register_match(players):
     title = Text(register, text="Registrer resultat", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
@@ -82,7 +64,7 @@ def write_player(new_player):
         con.executemany(sql, data)
 
     New_player_window.hide()
-    update_data()
+    make_GUI()
 
 def new_player():
     title = Text(New_player_window, text="New Player", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
@@ -90,19 +72,42 @@ def new_player():
     player = TextBox(New_player_window,grid=[0,2])
     save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
     New_player_window.show()
+
+def make_GUI():
+    # Get data
+    data = get_all_players()
+    data = data.sort_values('rating', ascending=False)
+    data = data.reset_index(drop=True)
+    names = data['name']
+
+    matches = pd.read_sql_query("SELECT * FROM MATCH", con)
     
 
-# Get data
-data = get_all_players()
-data = data.sort_values('rating', ascending=False)
-data = data.reset_index(drop=True)
-print(data)
-players = []
+    # Main window
+    headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
+    rating = Text(app, text="Rankingliste", size = 20, grid=[0,1,3,1])
+    navn = Text(app, text="Navn", grid =[1,2], size=14)
+    score = Text(app, text="Score", grid=[2,2], size=14)
+    for i, row in data.iterrows():
+        text = str(i+1) + "."
+        place = Text(app, text=text, grid=[0,i+3])
+        name = Text(app, text=row['name'], grid=[1,i+3])
+        rank = Text(app, text=str(row['rating']), grid=[2,i+3])
 
+    rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
+    last_games = matches.tail(10)
+    vinner = Text(app, text="Vinner", grid=[4,2], size=14)
+    taper = Text(app, text="Taper", grid=[5,2], size=14)
+    i = 0
+    for j, row in last_games.iterrows():
+        winner = Text(app, text=row['winner'], grid=[4,i+3], color="green")
+        loser = Text(app, text=row['loser'], grid=[5,i+3], color="red")
+        i += 1
 
-names = data.name
-matches = pd.read_sql_query("SELECT * FROM MATCH", con)
-print(matches)
+    register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
+
+    new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
+
 
 # Register match window
 register = Window(app, title="Registrer resultat", layout="grid")
@@ -111,37 +116,6 @@ register.hide()
 # New Player window
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
-
-
-# Main window
-headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
-rating = Text(app, text="Rankingliste", size = 20, grid=[0,1,3,1])
-navn = Text(app, text="Navn", grid =[1,2], size=14)
-score = Text(app, text="Score", grid=[2,2], size=14)
-for i, row in data.iterrows():
-    text = str(i+1) + "."
-    place = Text(app, text=text, grid=[0,i+3])
-    name = Text(app, text=row['name'], grid=[1,i+3])
-    rank = Text(app, text=str(row['rating']), grid=[2,i+3])
-
-rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
-last_games = matches.tail(10)
-print(last_games)
-vinner = Text(app, text="Vinner", grid=[4,2], size=14)
-taper = Text(app, text="Taper", grid=[5,2], size=14)
-i = 0
-for j, row in last_games.iterrows():
-    winner = Text(app, text=row['winner'], grid=[4,i+3], color="green")
-    loser = Text(app, text=row['loser'], grid=[5,i+3], color="red")
-    i += 1
-
-
-#ranking = ListBox(app, items=players, grid=[0,1])
-#last_games= ListBox(app, items=["Jon Magnus vs Henrik"], grid=[1,1])
-register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
-
-new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
-
-
+make_GUI()
 
 app.display()
