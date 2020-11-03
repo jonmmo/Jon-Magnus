@@ -1,6 +1,11 @@
 from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox
 import sqlite3 as sl
 import pandas as pd
+from datetime import datetime
+
+
+
+
 #from utils import *
 
 con = sl.connect('data.db')
@@ -31,11 +36,13 @@ def get_rating(player):
     return rating
 
 def save_match(winner, loser):
-    sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating) values(?, ?, ?, ?)'
+    sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating, Date) values(?, ?, ?, ?, ?)'
     winner_rating = int(get_rating(winner))
     loser_rating = int(get_rating(loser))
+    now =  (datetime.now())
+    now_str = (now.strftime("%Y-%m-%d %H:%M:%S"))
     data = [
-        (winner, loser, winner_rating, loser_rating)
+        (winner, loser, winner_rating, loser_rating,now_str)
     ]
     with con:
         con.executemany(sql, data)
