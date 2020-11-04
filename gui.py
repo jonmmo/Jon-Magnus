@@ -1,6 +1,7 @@
-from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox
+from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Picture
 import sqlite3 as sl
 import pandas as pd
+from matplotlib import pyplot as plt 
 from datetime import datetime
 
 
@@ -95,6 +96,8 @@ def make_GUI():
     rating = Text(app, text="Rankingliste", size = 20, grid=[0,1,3,1])
     navn = Text(app, text="Navn", grid =[1,2], size=14)
     score = Text(app, text="Score", grid=[2,2], size=14)
+    
+    
     for i, row in data.iterrows():
         text = str(i+1) + "."
         place = Text(app, text=text, grid=[0,i+3])
@@ -105,15 +108,28 @@ def make_GUI():
     last_games = matches.tail(10)
     vinner = Text(app, text="Vinner", grid=[4,2], size=14)
     taper = Text(app, text="Taper", grid=[5,2], size=14)
+    
     i = 0
+
     for j, row in last_games.iterrows():
-        winner = Text(app, text=row['winner'], grid=[4,i+3], color="green")
-        loser = Text(app, text=row['loser'], grid=[5,i+3], color="red")
+        winner = Text(app, text=("    "+ row['winner']+ "    "), grid=[4,i+3], color="green")
+        loser = Text(app, text=("    "+row['loser']+"    "), grid=[5,i+3], color="red")
         i += 1
+   
 
     register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
 
     new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
+
+    image = Picture(app, image="test.gif",grid = [1,18,20,20])
+
+
+
+def make_plots(players):
+    pass
+
+
+
 
 
 # Register match window
@@ -124,5 +140,9 @@ register.hide()
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
 make_GUI()
+
+
+
+
 
 app.display()
