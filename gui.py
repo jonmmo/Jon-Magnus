@@ -2,8 +2,9 @@ from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Pict
 import sqlite3 as sl
 import pandas as pd
 from matplotlib import pyplot as plt 
+from matplotlib import rc
 from datetime import datetime
-
+import numpy as np
 
 
 
@@ -124,10 +125,62 @@ def make_GUI():
     image = Picture(app, image="test.gif",grid = [1,18,20,20])
 
 
+def get_win_loss(names):
+    df = pd.read_sql_query("SELECT * FROM MATCH", con)
+    wins=[]
+    losses=[]
+    for x in names:
+        wins.append( df[df['winner']==x].shape[0])
+        losses.append( df[df['loser']==x].shape[0])
+     
+    return[wins,losses]
 
-def make_plots(players):
-    pass
+def make_plots():
+   
+    
+    names=['Henrik', 'Jon Magnus','Thomas']
+    
+    [wins,losses]=get_win_loss(names)
+    total = np.add(wins, losses) 
+    
 
+    r = list(range(0,len(names)))
+   
+    raw_data = {'greenBars': wins, 'orangeBars': losses,'blueBars': [0]*len(names)}
+    df = pd.DataFrame(raw_data)
+ 
+    # From raw value to percentage
+    totals = [i+j+k for i,j,k in zip(df['greenBars'], df['orangeBars'], df['blueBars'])]
+    greenBars = [i / j * 100 for i,j in zip(df['greenBars'], totals)]
+    orangeBars = [i / j * 100 for i,j in zip(df['orangeBars'], totals)]
+    blueBars = [i / j * 100 for i,j in zip(df['blueBars'], totals)]
+    
+    # plot
+    barWidth = 0.85
+    
+    # Create green Bars
+    plt.bar(r, greenBars, color='#b5ffb9', edgecolor='white', width=barWidth)
+    # Create orange Bars
+    plt.bar(r, orangeBars, bottom=greenBars, color='#f9bc86', edgecolor='white', width=barWidth)
+    # Create blue Bars
+    plt.bar(r, blueBars, bottom=[i+j for i,j in zip(greenBars, orangeBars)], color='#a3acff', edgecolor='white', width=barWidth)
+    
+    # Custom x axis
+    plt.xticks(r, names)
+    plt.xlabel("group")
+    
+    
+  
+    
+    # Show graphic
+    plt.savefig("Plot.png")
+
+
+
+
+
+
+    
 
 
 
@@ -142,7 +195,7 @@ New_player_window.hide()
 make_GUI()
 
 
-
+# make_plots()
 
 
 app.display()
