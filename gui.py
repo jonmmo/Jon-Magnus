@@ -122,7 +122,14 @@ def make_GUI():
 
     new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
 
-    image = Picture(app, image="test.gif",grid = [1,18,20,20])
+    # plot_types =['win/loss', 'History']
+    # plt_type = Combo(app,options=plot_types, grid=[2,18,2,1])
+    # plot_button = PushButton(app, command=make_plots(), text="Plott Win/Loss", grid=[3,18,2,1])
+    
+    make_plots()
+    image = Picture(app,image="plot.png",grid=[1,19])
+
+
 
 
 def get_win_loss(names):
@@ -136,9 +143,9 @@ def get_win_loss(names):
     return[wins,losses]
 
 def make_plots():
-   
+    # print(plot_type)
     
-    names=['Henrik', 'Jon Magnus','Thomas']
+    names=['Henrik', 'Jon Magnus','Thomas','Petter','Benjamin']
     
     [wins,losses]=get_win_loss(names)
     total = np.add(wins, losses) 
@@ -167,22 +174,12 @@ def make_plots():
     
     # Custom x axis
     plt.xticks(r, names)
-    plt.xlabel("group")
+    plt.xlabel("Spillere")
     
-    
-  
     
     # Show graphic
-    plt.savefig("Plot.png")
-
-
-
-
-
-
-    
-
-
+    plt.savefig("Plot.png", transparent = True)
+ 
 
 
 # Register match window
@@ -192,10 +189,10 @@ register.hide()
 # New Player window
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
+
+
+
+
 make_GUI()
-
-
-# make_plots()
-
 
 app.display()
