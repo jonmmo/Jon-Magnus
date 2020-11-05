@@ -2,10 +2,10 @@ from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Pict
 import sqlite3 as sl
 import pandas as pd
 from matplotlib import pyplot as plt 
-from matplotlib import rc
+from matplotlib import rc, dates as dts, figure as fig
 from datetime import datetime
 import numpy as np
-
+import time 
 
 
 #from utils import *
@@ -93,16 +93,16 @@ def make_GUI():
 
     # Main window
     headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
-    rating = Text(app, text="Rankingliste", size = 20, grid=[0,1,3,1])
+    rating = Text(app, text="Rankingliste", size = 20, grid=[1,1,3,1])
     navn = Text(app, text="Navn", grid =[1,2], size=14)
     score = Text(app, text="Score", grid=[2,2], size=14)
     
     
     for i, row in data.iterrows():
         text = str(i+1) + "."
-        place = Text(app, text=text, grid=[0,i+3])
-        name = Text(app, text=row['name'], grid=[1,i+3])
-        rank = Text(app, text=str(row['rating']), grid=[2,i+3])
+        place = Text(app, text=text, grid=[1,i+3])
+        name = Text(app, text=('     '+row['name']+'     '), grid=[2,i+3])
+        rank = Text(app, text=('     '+str(row['rating'])+'     '), grid=[3,i+3])
 
     rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
     last_games = matches.tail(10)
@@ -119,14 +119,16 @@ def make_GUI():
 
     register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
 
-    new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,2,1])
+    new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,3,1])
 
     # plot_types =['win/loss', 'History']
     # plt_type = Combo(app,options=plot_types, grid=[2,18,2,1])
     # plot_button = PushButton(app, command=make_plots(), text="Plott Win/Loss", grid=[3,18,2,1])
     
     make_plots()
-    image = Picture(app,image="Plot.png",grid=[1,19])
+    image = Picture(app,image="Plot.png",grid=[1,19,3,3])
+    image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
+    
 
     # exit_button = PushButton(app, command=exit, text="Exit Program", grid=[4,20,2,1])
  
@@ -135,14 +137,42 @@ def make_GUI():
 
 
 def get_win_loss(names):
+
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     wins=[]
     losses=[]
+    
     for x in names:
         wins.append( df[df['winner']==x].shape[0])
         losses.append( df[df['loser']==x].shape[0])
      
     return[wins,losses]
+
+def get_historical_rating (names):
+    df = pd.read_sql_query("SELECT * FROM MATCH", con)
+    i=0
+    rating_hist=[]
+    # print(df)
+    date_hist=[]
+    for x in names:
+        rating=[]
+        date =[]
+        for i in range(0,df.shape[0]):
+            if df.winner[i] ==x:
+               rating.append(df.winner_rating[i])
+               date.append(df.DATE[i])
+            elif df.loser[i] == x:
+                rating.append(df.loser_rating[i])
+                date.append(df.DATE[i])
+            dates = dts.date2num(date)
+        rating_hist.append(rating)
+        date_hist.append(dates)
+
+    return[rating_hist,date_hist]
+        
+
+
+
 
 def make_plots():
     # print(plot_type)
@@ -166,21 +196,46 @@ def make_plots():
     
     # plot
     barWidth = 0.85
-    
+    plt.figure(1)
     # Create green Bars
-    plt.bar(r, greenBars, color='#b5ffb9', edgecolor='white', width=barWidth)
+    plt.bar(r, greenBars, color='#b5ffb9', edgecolor='white', width=barWidth,)
     # Create orange Bars
     plt.bar(r, orangeBars, bottom=greenBars, color='#f9bc86', edgecolor='white', width=barWidth)
     # Create blue Bars
-    plt.bar(r, blueBars, bottom=[i+j for i,j in zip(greenBars, orangeBars)], color='#a3acff', edgecolor='white', width=barWidth)
+    # plt.bar(r, blueBars, bottom=[i+j for i,j in zip(greenBars, orangeBars)], color='#a3acff', edgecolor='white', width=barWidth)
+
+   
+
     
     # Custom x axis
     plt.xticks(r, names)
     plt.xlabel("Spillere")
-    
+    plt.legend(['Wins', 'Losses'])
+
     # Save graphic
     plt.savefig("Plot.png", transparent = True)
- 
+
+
+    ## Historical plot 
+    plt.figure(2)
+    [rating_hist,date_list] = get_historical_rating (names)
+
+
+    for rating, date in zip(rating_hist, date_list) :
+        plt.plot_date(date,rating,'-')
+        plt.legend(names,loc=2)
+
+
+    
+    plt.xticks(rotation=20)
+  
+    
+    plt.savefig("Historic_plot",transparent = True) 
+    plt.close()
+
+
+
+
 
 
 # Register match window
@@ -190,6 +245,7 @@ register.hide()
 # New Player window
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
+
 
 
 make_GUI()
