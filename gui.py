@@ -63,7 +63,6 @@ def register_match(players):
     register.show()
     
 app = App("Pool system", layout = "grid")
-
 def write_player(new_player):
     sql = 'INSERT INTO USER (name, rating) values(?, ?)'
     data = [
@@ -127,7 +126,10 @@ def make_GUI():
     # plot_button = PushButton(app, command=make_plots(), text="Plott Win/Loss", grid=[3,18,2,1])
     
     make_plots()
-    image = Picture(app,image="plot.png",grid=[1,19])
+    image = Picture(app,image="Plot.png",grid=[1,19])
+
+    # exit_button = PushButton(app, command=exit, text="Exit Program", grid=[4,20,2,1])
+ 
 
 
 
@@ -176,8 +178,7 @@ def make_plots():
     plt.xticks(r, names)
     plt.xlabel("Spillere")
     
-    
-    # Show graphic
+    # Save graphic
     plt.savefig("Plot.png", transparent = True)
  
 
@@ -191,8 +192,6 @@ New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
 
 
-
-
 make_GUI()
-
+app.when_closed = exit 
 app.display()
