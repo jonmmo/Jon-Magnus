@@ -164,7 +164,7 @@ def get_historical_rating (names):
             elif df.loser[i] == x:
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
-            dates = dts.date2num(date)
+            dates = dts.datestr2num(date)
         rating_hist.append(rating)
         date_hist.append(dates)
 
