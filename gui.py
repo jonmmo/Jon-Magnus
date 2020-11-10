@@ -136,7 +136,7 @@ def make_GUI():
     make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
-    image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
+    # image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
 
 
 
