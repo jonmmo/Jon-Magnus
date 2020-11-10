@@ -7,7 +7,6 @@ from datetime import datetime
 import numpy as np
 import time 
 
-
 #from utils import *
 
 con = sl.connect('data.db')
@@ -81,6 +80,15 @@ def new_player():
     save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
     New_player_window.show()
 
+
+
+
+
+
+
+
+
+
 def make_GUI():
     # Get data
     data = get_all_players()
@@ -112,8 +120,8 @@ def make_GUI():
     i = 0
 
     for j, row in last_games.iterrows():
-        winner = Text(app, text=("    "+ row['winner']+ "    "), grid=[4,i+3], color="green")
-        loser = Text(app, text=("    "+row['loser']+"    "), grid=[5,i+3], color="red")
+        winner = Text(app, text=("      "+ row['winner']+ "      "), grid=[4,i+3], color="green")
+        loser = Text(app, text=("      "+row['loser']+"      "), grid=[5,i+3], color="red")
         i += 1
    
 
@@ -128,7 +136,11 @@ def make_GUI():
     make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
-    
+    image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
+
+
+
+
 
     # exit_button = PushButton(app, command=exit, text="Exit Program", grid=[4,20,2,1])
  
@@ -152,6 +164,7 @@ def get_historical_rating (names):
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     i=0
     rating_hist=[]
+    now =  (datetime.now())
     # print(df)
     date_hist=[]
     for x in names:
@@ -164,7 +177,10 @@ def get_historical_rating (names):
             elif df.loser[i] == x:
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
-            dates = dts.date2num(date)
+           
+        rating.append(get_rating(x))
+        date.append(now.strftime("%Y-%m-%d %H:%M:%S"))
+        dates = dts.date2num(date)    
         rating_hist.append(rating)
         date_hist.append(dates)
 
@@ -181,7 +197,7 @@ def make_plots():
     
     [wins,losses]=get_win_loss(names)
     total = np.add(wins, losses) 
-    
+
 
     r = list(range(0,len(names)))
    
