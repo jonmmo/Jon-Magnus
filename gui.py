@@ -180,7 +180,7 @@ def get_historical_rating (names):
            
         rating.append(get_rating(x))
         date.append(now.strftime("%Y-%m-%d %H:%M:%S"))
-        dates = dts.date2num(date)    
+        dates = dts.datestr2num(date)
         rating_hist.append(rating)
         date_hist.append(dates)
 
