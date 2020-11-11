@@ -19,6 +19,7 @@ def get_all_players():
     return df
 
 def update_rating(player):
+
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     player_opt_ranking_total = df.loc[df['winner'] == player, 'loser_rating'].sum() + df.loc[df['loser'] == player, 'winner_rating'].sum()
 
@@ -28,6 +29,7 @@ def update_rating(player):
     new_rating = round((player_opt_ranking_total + 400 * player_win_loss)/total_games)
 
     c = con.cursor()
+    
     c.execute('''UPDATE USER SET rating = ? WHERE name = ?''', (new_rating, player))
     con.commit()
 
@@ -83,6 +85,38 @@ def new_player():
 
 
 
+def streak(names):
+    streak_list=[]
+
+    for player in names:
+        df = pd.read_sql_query("SELECT * FROM MATCH where winner=? or loser=?", con, params=[player,player])
+        if len(df) == 0:
+            streak_value="-"
+
+        else:
+
+             
+            win_df = df[df.winner == player]
+            los_df = df[df.loser == player] 
+            if len(los_df) >0 and len(win_df) >0:
+                last_los = max(los_df['id'])
+                last_win = max(win_df['id'])
+
+                if last_los > last_win:
+                    streak_value = "L" + str(len(los_df[los_df['id'] > last_win ]))
+                elif last_los < last_win:
+                    streak_value = "W" + str(len(win_df[win_df['id'] > last_los ]))
+            elif len(win_df)>0:
+                streak_value = "W" + str(len(win_df)+1)
+            elif len(los_df)>0:
+                streak_value = "L" + str(len(los_df)+1)
+                 
+        streak_list.append(streak_value)
+    return streak_list
+
+
+
+
 
 
 
@@ -95,22 +129,25 @@ def make_GUI():
     data = data.sort_values('rating', ascending=False)
     data = data.reset_index(drop=True)
     names = data['name']
-
+    name_list = names.tolist()
+    streaks = streak(name_list)
+    
     matches = pd.read_sql_query("SELECT * FROM MATCH", con)
     
 
     # Main window
     headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
     rating = Text(app, text="Rankingliste", size = 20, grid=[1,1,3,1])
-    navn = Text(app, text="Navn", grid =[1,2], size=14)
-    score = Text(app, text="Score", grid=[2,2], size=14)
+    navn = Text(app, text="Navn", grid =[2,2], size=14)
+    score = Text(app, text="Score", grid=[3,2], size=14)
     
     
     for i, row in data.iterrows():
         text = str(i+1) + "."
         place = Text(app, text=text, grid=[1,i+3])
         name = Text(app, text=('     '+row['name']+'     '), grid=[2,i+3])
-        rank = Text(app, text=('     '+str(row['rating'])+'     '), grid=[3,i+3])
+        rank = Text(app, text=('     '+str(row['rating'])+" - Streak: "+streaks[i]+'     '), grid=[3,i+3])
+
 
     rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
     last_games = matches.tail(10)
@@ -133,9 +170,10 @@ def make_GUI():
     # plt_type = Combo(app,options=plot_types, grid=[2,18,2,1])
     # plot_button = PushButton(app, command=make_plots(), text="Plott Win/Loss", grid=[3,18,2,1])
     
-    make_plots()
+    # make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
+
     # image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
 
 
@@ -171,10 +209,10 @@ def get_historical_rating (names):
         rating=[]
         date =[]
         for i in range(0,df.shape[0]):
-            if df.winner[i] ==x:
+            if df.winner[i] ==x and df.DATE[i] != '2020-11-02 12:00:00':
                rating.append(df.winner_rating[i])
                date.append(df.DATE[i])
-            elif df.loser[i] == x:
+            elif df.loser[i] == x and df.DATE[i] != '2020-11-02 12:00:00':
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
            
