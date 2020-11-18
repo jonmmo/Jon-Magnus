@@ -300,7 +300,7 @@ register.hide()
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
 
-
+make_GUI()
 
 app.when_closed = exit 
 app.display()
