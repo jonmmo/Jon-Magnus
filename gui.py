@@ -107,9 +107,9 @@ def streak(names):
                 elif last_los < last_win:
                     streak_value = "W" + str(len(win_df[win_df['id'] > last_los ]))
             elif len(win_df)>0:
-                streak_value = "W" + str(len(win_df)+1)
+                streak_value = "W" + str(len(win_df))
             elif len(los_df)>0:
-                streak_value = "L" + str(len(los_df)+1)
+                streak_value = "L" + str(len(los_df))
                  
         streak_list.append(streak_value)
     return streak_list
@@ -209,10 +209,10 @@ def get_historical_rating (names):
         rating=[]
         date =[]
         for i in range(0,df.shape[0]):
-            if df.winner[i] ==x and df.DATE[i] != '2020-11-02 12:00:00':
+            if df.winner[i] ==x and df.DATE[i] :
                rating.append(df.winner_rating[i])
                date.append(df.DATE[i])
-            elif df.loser[i] == x and df.DATE[i] != '2020-11-02 12:00:00':
+            elif df.loser[i] == x and df.DATE[i] :
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
            
