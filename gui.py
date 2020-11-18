@@ -170,7 +170,7 @@ def make_GUI():
     # plt_type = Combo(app,options=plot_types, grid=[2,18,2,1])
     # plot_button = PushButton(app, command=make_plots(), text="Plott Win/Loss", grid=[3,18,2,1])
     
-    # make_plots()
+    make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
 
@@ -203,16 +203,16 @@ def get_historical_rating (names):
     i=0
     rating_hist=[]
     now =  (datetime.now())
-    # print(df)
+
     date_hist=[]
     for x in names:
         rating=[]
         date =[]
         for i in range(0,df.shape[0]):
-            if df.winner[i] ==x and df.DATE[i] :
+            if df.winner[i] ==x and not df.DATE[i] == '2020-11-02 12:00:00':
                rating.append(df.winner_rating[i])
                date.append(df.DATE[i])
-            elif df.loser[i] == x and df.DATE[i] :
+            elif df.loser[i] == x and not df.DATE[i] == '2020-11-02 12:00:00':
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
            
@@ -272,7 +272,7 @@ def make_plots():
 
     ## Historical plot 
     plt.figure(2)
-    [rating_hist,date_list] = get_historical_rating (names)
+    [rating_hist,date_list] = get_historical_rating(names)
 
 
     for rating, date in zip(rating_hist, date_list) :
@@ -302,6 +302,5 @@ New_player_window.hide()
 
 
 
-make_GUI()
 app.when_closed = exit 
 app.display()
