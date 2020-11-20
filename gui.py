@@ -1,4 +1,4 @@
-from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Picture
+from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Picture, CheckBox
 import sqlite3 as sl
 import pandas as pd
 from matplotlib import pyplot as plt 
@@ -34,11 +34,12 @@ def update_rating(player):
     con.commit()
 
 def get_rating(player):
+   
     r = pd.read_sql_query('''SELECT rating FROM USER WHERE name = ?''', con, params=[player])
     rating = r['rating'].iloc[0]
     return rating
 
-def save_match(winner, loser):
+def save_match(winner, loser, perfect):
     sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating, Date) values(?, ?, ?, ?, ?)'
     winner_rating = int(get_rating(winner))
     loser_rating = int(get_rating(loser))
@@ -47,6 +48,14 @@ def save_match(winner, loser):
     data = [
         (winner, loser, winner_rating, loser_rating,now_str)
     ]
+    if perfect ==1:
+        sql_string = 'UPDATE USER SET star = star+1 WHERE NAME = ?'
+       
+     
+        with con:
+            con.execute(sql_string,[winner])
+
+   
     with con:
         con.executemany(sql, data)
     update_rating(winner)
@@ -60,8 +69,12 @@ def register_match(players):
     winner = Combo(register, options=players, grid=[1,1])
     label1 = Text(register, text="Taper:",  grid=[2,1])
     loser = Combo(register, options=players, grid=[3,1])
-    save_button = PushButton(register, command=lambda:save_match(winner.value, loser.value), text="Registrer resultat", grid=[0,3,2,1])
+    save_button = PushButton(register, command=lambda:save_match(winner.value, loser.value,checkbox.value), text="Registrer resultat", grid=[0,3,2,1])
     register.show()
+
+    checkbox = CheckBox(register, text="7-0?", grid = [3,3])
+    
+    
     
 app = App("Pool system", layout = "grid")
 def write_player(new_player):
@@ -87,8 +100,9 @@ def new_player():
 
 def streak(names):
     streak_list=[]
-
+    streak_value = "-" 
     for player in names:
+       
         df = pd.read_sql_query("SELECT * FROM MATCH where winner=? or loser=?", con, params=[player,player])
         if len(df) == 0:
             streak_value="-"
@@ -129,6 +143,8 @@ def make_GUI():
     data = data.sort_values('rating', ascending=False)
     data = data.reset_index(drop=True)
     names = data['name']
+    star_num = data['STAR']
+    
     name_list = names.tolist()
     streaks = streak(name_list)
     
@@ -143,9 +159,18 @@ def make_GUI():
     
     
     for i, row in data.iterrows():
+        stars=[]
+        if star_num[i]>0:
+           for a in range(star_num[i]):
+               stars.append(chr(9733))
+               stars=''.join(stars)
+        else:
+            stars =" "
+
         text = str(i+1) + "."
         place = Text(app, text=text, grid=[1,i+3])
-        name = Text(app, text=('     '+row['name']+'     '), grid=[2,i+3])
+        name = Text(app, text=(
+            '     '+ row['name']+stars+'   '), grid=[2,i+3])
         rank = Text(app, text=('     '+str(row['rating'])+" - Streak: "+streaks[i]+'     '), grid=[3,i+3])
 
 
@@ -301,6 +326,8 @@ New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
 
 make_GUI()
+
+
 
 app.when_closed = exit 
 app.display()
