@@ -144,7 +144,7 @@ def make_GUI():
     data = data.reset_index(drop=True)
     names = data['name']
     star_num = data['STAR']
-    
+
     name_list = names.tolist()
     streaks = streak(name_list)
     
@@ -163,10 +163,10 @@ def make_GUI():
         if star_num[i]>0:
            for a in range(star_num[i]):
                stars.append(chr(9733))
-               stars=''.join(stars)
+               
         else:
-            stars =" "
-
+            stars =[""]
+        stars=''.join(stars)
         text = str(i+1) + "."
         place = Text(app, text=text, grid=[1,i+3])
         name = Text(app, text=(
