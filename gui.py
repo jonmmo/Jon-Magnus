@@ -163,6 +163,7 @@ def make_statistics(player1, player2):
     p1_text = Text(statistics, text ="     "+player1+"     ", grid=[1,3,2,1])
     p2_text = Text(statistics, text ="     "+player2+"     ", grid=[3,3,2,1])
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
+    pdf = pd.read_sql_query("SELECT * FROM USER", con)
     p1_wins_df = df.loc[df['winner'] == player1]
     p1_loss_df = df.loc[df['loser'] == player1]
     p2_wins_df = df.loc[df['winner'] == player2]
@@ -171,34 +172,52 @@ def make_statistics(player1, player2):
     p1_loss = len(p1_loss_df)
     p2_wins = len(p2_wins_df)
     p2_loss = len(p2_loss_df)
+    p1_rating = int(pdf.loc[pdf['name'] == player1].rating)
+    p2_rating = int(pdf.loc[pdf['name'] == player2].rating)
     p1_highest_rating = max(p1_wins_df['winner_rating'].max(), p1_loss_df['loser_rating'].max()) 
     p2_highest_rating = max(p2_wins_df['winner_rating'].max(), p2_loss_df['loser_rating'].max()) 
     p1_lowest_rating = min(p1_wins_df['winner_rating'].min(), p1_loss_df['loser_rating'].min()) 
     p2_lowest_rating = min(p2_wins_df['winner_rating'].min(), p2_loss_df['loser_rating'].min()) 
+    p1_win_streak = int(pdf.loc[pdf['name'] == player1].MAX_WIN_STREAK)
+    p2_win_streak = int(pdf.loc[pdf['name'] == player2].MAX_WIN_STREAK)
+    p1_loss_streak = int(pdf.loc[pdf['name'] == player1].MAX_LOSE_STREAK)
+    p2_loss_streak = int(pdf.loc[pdf['name'] == player2].MAX_LOSE_STREAK)
 
     Text(statistics, text="Spilte kamper", grid=[0,4])
-    p1_wins_text = Text(statistics, text=str(p1_wins+p1_loss), grid=[1,4])
-    p2_wins_text = Text(statistics, text=str(p2_wins+p2_loss), grid=[3,4])
+    Text(statistics, text=str(p1_wins+p1_loss), grid=[1,4])
+    Text(statistics, text=str(p2_wins+p2_loss), grid=[3,4])
 
     Text(statistics, text="Seiere", grid=[0,5])
-    p1_wins_text = Text(statistics, text=str(p1_wins), grid=[1,5])
-    p2_wins_text = Text(statistics, text=str(p2_wins), grid=[3,5])
+    Text(statistics, text=str(p1_wins), grid=[1,5])
+    Text(statistics, text=str(p2_wins), grid=[3,5])
 
     Text(statistics, text="Tap", grid=[0,6])
-    p1_loss_text = Text(statistics, text=str(p1_loss), grid=[1,6])
-    p2_loss_text = Text(statistics, text=str(p2_loss), grid=[3,6])
+    Text(statistics, text=str(p1_loss), grid=[1,6])
+    Text(statistics, text=str(p2_loss), grid=[3,6])
 
     Text(statistics, text="Seiere/Tap", grid=[0,7])
-    p1_loss_text = Text(statistics, text=str(p1_wins/p1_loss), grid=[1,7])
-    p2_loss_text = Text(statistics, text=str(p2_wins/p2_loss), grid=[3,7])
+    Text(statistics, text=str(round(p1_wins/p1_loss,2)), grid=[1,7])
+    Text(statistics, text=str(round(p2_wins/p2_loss,2)), grid=[3,7])
 
-    Text(statistics, text="Høyeste rating", grid=[0,8])
-    p1_highrating_text = Text(statistics, text=str(p1_highest_rating), grid=[1,8])
-    p2_highrating_text = Text(statistics, text=str(p2_highest_rating), grid=[3,8])
+    Text(statistics, text="Høyeste win-streak", grid=[0,8])
+    Text(statistics, text=str(p1_win_streak), grid=[1,8])
+    Text(statistics, text=str(p2_win_streak), grid=[3,8])
 
-    Text(statistics, text="Laveste rating", grid=[0,9])
-    p1_lowrating_text = Text(statistics, text=str(p1_lowest_rating), grid=[1,9])
-    p2_lowrating_text = Text(statistics, text=str(p2_lowest_rating), grid=[3,9])
+    Text(statistics, text="Høyeste win-streak", grid=[0,9])
+    Text(statistics, text=str(p1_loss_streak), grid=[1,9])
+    Text(statistics, text=str(p2_loss_streak), grid=[3,9])
+
+    Text(statistics, text="Rating", grid=[0,10])
+    Text(statistics, text=str(p1_rating), grid=[1,10])
+    Text(statistics, text=str(p2_rating), grid=[3,10])
+
+    Text(statistics, text="Høyeste rating", grid=[0,11])
+    Text(statistics, text=str(p1_highest_rating), grid=[1,11])
+    Text(statistics, text=str(p2_highest_rating), grid=[3,11])
+
+    Text(statistics, text="Laveste rating", grid=[0,12])
+    Text(statistics, text=str(p1_lowest_rating), grid=[1,12])
+    Text(statistics, text=str(p2_lowest_rating), grid=[3,12])
 
 
 
