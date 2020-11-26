@@ -1,4 +1,4 @@
-from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Picture
+from guizero import App, Text, PushButton, ListBox, Window, Combo, TextBox, Picture, CheckBox
 import sqlite3 as sl
 import pandas as pd
 from matplotlib import pyplot as plt 
@@ -6,7 +6,6 @@ from matplotlib import rc, dates as dts, figure as fig
 from datetime import datetime
 import numpy as np
 import time 
-
 
 #from utils import *
 
@@ -20,6 +19,7 @@ def get_all_players():
     return df
 
 def update_rating(player):
+
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     player_opt_ranking_total = df.loc[df['winner'] == player, 'loser_rating'].sum() + df.loc[df['loser'] == player, 'winner_rating'].sum()
 
@@ -29,15 +29,17 @@ def update_rating(player):
     new_rating = round((player_opt_ranking_total + 400 * player_win_loss)/total_games)
 
     c = con.cursor()
+    
     c.execute('''UPDATE USER SET rating = ? WHERE name = ?''', (new_rating, player))
     con.commit()
 
 def get_rating(player):
+   
     r = pd.read_sql_query('''SELECT rating FROM USER WHERE name = ?''', con, params=[player])
     rating = r['rating'].iloc[0]
     return rating
 
-def save_match(winner, loser):
+def save_match(winner, loser, perfect):
     sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating, Date) values(?, ?, ?, ?, ?)'
     winner_rating = int(get_rating(winner))
     loser_rating = int(get_rating(loser))
@@ -46,6 +48,14 @@ def save_match(winner, loser):
     data = [
         (winner, loser, winner_rating, loser_rating,now_str)
     ]
+    if perfect ==1:
+        sql_string = 'UPDATE USER SET star = star+1 WHERE NAME = ?'
+       
+     
+        with con:
+            con.execute(sql_string,[winner])
+
+   
     with con:
         con.executemany(sql, data)
     update_rating(winner)
@@ -59,8 +69,12 @@ def register_match(players):
     winner = Combo(register, options=players, grid=[1,1])
     label1 = Text(register, text="Taper:",  grid=[2,1])
     loser = Combo(register, options=players, grid=[3,1])
-    save_button = PushButton(register, command=lambda:save_match(winner.value, loser.value), text="Registrer resultat", grid=[0,3,2,1])
+    save_button = PushButton(register, command=lambda:save_match(winner.value, loser.value,checkbox.value), text="Registrer resultat", grid=[0,3,2,1])
     register.show()
+
+    checkbox = CheckBox(register, text="7-0?", grid = [3,3])
+    
+    
     
 app = App("Pool system", layout = "grid")
 def write_player(new_player):
@@ -81,58 +95,45 @@ def new_player():
     save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
     New_player_window.show()
 
-def open_statistics():
-    df = get_all_players()
-    players = df['name'].tolist()
-    title = Text(statistics, text="Statistikk", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
-    label1 = Text(statistics, text="Spiller 1",  grid=[0,1])
-    one = Combo(statistics, options=players, grid=[1,1])
-    label1 = Text(statistics, text="Spiller 2",  grid=[2,1])
-    #players.append("ingen")
-    two = Combo(statistics, options=players, grid=[3,1])
-    save_button = PushButton(statistics, command=lambda:make_statistics(one.value, two.value), text="Se statistikk", grid=[4,1,2,1])
-    statistics.show()
 
-def make_statistics(player1, player2):
-    p1_text = Text(statistics, text ="     "+player1+"     ", grid=[1,3,2,1])
-    p2_text = Text(statistics, text ="     "+player2+"     ", grid=[3,3,2,1])
-    df = pd.read_sql_query("SELECT * FROM MATCH", con)
-    p1_wins_df = df.loc[df['winner'] == player1]
-    p1_loss_df = df.loc[df['loser'] == player1]
-    p2_wins_df = df.loc[df['winner'] == player2]
-    p2_loss_df = df.loc[df['loser'] == player2]
-    p1_wins = len(p1_wins_df)
-    p1_loss = len(p1_loss_df)
-    p2_wins = len(p2_wins_df)
-    p2_loss = len(p2_loss_df)
-    p1_highest_rating = max(p1_wins_df['winner_rating'].max(), p1_loss_df['loser_rating'].max()) 
-    p2_highest_rating = max(p2_wins_df['winner_rating'].max(), p2_loss_df['loser_rating'].max()) 
-    p1_lowest_rating = min(p1_wins_df['winner_rating'].min(), p1_loss_df['loser_rating'].min()) 
-    p2_lowest_rating = min(p2_wins_df['winner_rating'].min(), p2_loss_df['loser_rating'].min()) 
 
-    Text(statistics, text="Spilte kamper", grid=[0,4])
-    p1_wins_text = Text(statistics, text=str(p1_wins+p1_loss), grid=[1,4])
-    p2_wins_text = Text(statistics, text=str(p2_wins+p2_loss), grid=[3,4])
 
-    Text(statistics, text="Seiere", grid=[0,5])
-    p1_wins_text = Text(statistics, text=str(p1_wins), grid=[1,5])
-    p2_wins_text = Text(statistics, text=str(p2_wins), grid=[3,5])
+def streak(names):
+    streak_list=[]
+    streak_value = "-" 
+    for player in names:
+       
+        df = pd.read_sql_query("SELECT * FROM MATCH where winner=? or loser=?", con, params=[player,player])
+        if len(df) == 0:
+            streak_value="-"
 
-    Text(statistics, text="Tap", grid=[0,6])
-    p1_loss_text = Text(statistics, text=str(p1_loss), grid=[1,6])
-    p2_loss_text = Text(statistics, text=str(p2_loss), grid=[3,6])
+        else:
 
-    Text(statistics, text="Seiere/Tap", grid=[0,7])
-    p1_loss_text = Text(statistics, text=str(p1_wins/p1_loss), grid=[1,7])
-    p2_loss_text = Text(statistics, text=str(p2_wins/p2_loss), grid=[3,7])
+             
+            win_df = df[df.winner == player]
+            los_df = df[df.loser == player] 
+            if len(los_df) >0 and len(win_df) >0:
+                last_los = max(los_df['id'])
+                last_win = max(win_df['id'])
 
-    Text(statistics, text="Høyeste rating", grid=[0,8])
-    p1_highrating_text = Text(statistics, text=str(p1_highest_rating), grid=[1,8])
-    p2_highrating_text = Text(statistics, text=str(p2_highest_rating), grid=[3,8])
+                if last_los > last_win:
+                    streak_value = "L" + str(len(los_df[los_df['id'] > last_win ]))
+                elif last_los < last_win:
+                    streak_value = "W" + str(len(win_df[win_df['id'] > last_los ]))
+            elif len(win_df)>0:
+                streak_value = "W" + str(len(win_df))
+            elif len(los_df)>0:
+                streak_value = "L" + str(len(los_df))
+                 
+        streak_list.append(streak_value)
+    return streak_list
 
-    Text(statistics, text="Laveste rating", grid=[0,9])
-    p1_lowrating_text = Text(statistics, text=str(p1_lowest_rating), grid=[1,9])
-    p2_lowrating_text = Text(statistics, text=str(p2_lowest_rating), grid=[3,9])
+
+
+
+
+
+
 
 
 
@@ -142,22 +143,36 @@ def make_GUI():
     data = data.sort_values('rating', ascending=False)
     data = data.reset_index(drop=True)
     names = data['name']
+    star_num = data['STAR']
 
+    name_list = names.tolist()
+    streaks = streak(name_list)
+    
     matches = pd.read_sql_query("SELECT * FROM MATCH", con)
     
 
     # Main window
     headline = Text(app, text="Pool-rankingsystem for kontor C1.062", size=60, font="Comic Sans MS", color="blue", grid=[0,0,6,1], align="top")
     rating = Text(app, text="Rankingliste", size = 20, grid=[1,1,3,1])
-    navn = Text(app, text="Navn", grid =[1,2], size=14)
-    score = Text(app, text="Score", grid=[2,2], size=14)
+    navn = Text(app, text="Navn", grid =[2,2], size=14)
+    score = Text(app, text="Score", grid=[3,2], size=14)
     
     
     for i, row in data.iterrows():
+        stars=[]
+        if star_num[i]>0:
+           for a in range(star_num[i]):
+               stars.append(chr(9733))
+               
+        else:
+            stars =[""]
+        stars=''.join(stars)
         text = str(i+1) + "."
         place = Text(app, text=text, grid=[1,i+3])
-        name = Text(app, text=('     '+row['name']+'     '), grid=[2,i+3])
-        rank = Text(app, text=('     '+str(row['rating'])+'     '), grid=[3,i+3])
+        name = Text(app, text=(
+            '     '+ row['name']+stars+'   '), grid=[2,i+3])
+        rank = Text(app, text=('     '+str(row['rating'])+" - Streak: "+streaks[i]+'     '), grid=[3,i+3])
+
 
     rating = Text(app, text="Siste kamper", size = 20, grid=[4,1,2,1])
     last_games = matches.tail(10)
@@ -167,8 +182,8 @@ def make_GUI():
     i = 0
 
     for j, row in last_games.iterrows():
-        winner = Text(app, text=("    "+ row['winner']+ "    "), grid=[4,i+3], color="green")
-        loser = Text(app, text=("    "+row['loser']+"    "), grid=[5,i+3], color="red")
+        winner = Text(app, text=("      "+ row['winner']+ "      "), grid=[4,i+3], color="green")
+        loser = Text(app, text=("      "+row['loser']+"      "), grid=[5,i+3], color="red")
         i += 1
    
 
@@ -183,7 +198,12 @@ def make_GUI():
     make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
-    
+
+    # image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
+
+
+
+
 
     # exit_button = PushButton(app, command=exit, text="Exit Program", grid=[4,20,2,1])
  
@@ -207,19 +227,23 @@ def get_historical_rating (names):
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
     i=0
     rating_hist=[]
-    # print(df)
+    now =  (datetime.now())
+
     date_hist=[]
     for x in names:
         rating=[]
         date =[]
         for i in range(0,df.shape[0]):
-            if df.winner[i] ==x:
+            if df.winner[i] ==x and not df.DATE[i] == '2020-11-02 12:00:00':
                rating.append(df.winner_rating[i])
                date.append(df.DATE[i])
-            elif df.loser[i] == x:
+            elif df.loser[i] == x and not df.DATE[i] == '2020-11-02 12:00:00':
                 rating.append(df.loser_rating[i])
                 date.append(df.DATE[i])
-            dates = dts.datestr2num(date)
+           
+        rating.append(get_rating(x))
+        date.append(now.strftime("%Y-%m-%d %H:%M:%S"))
+        dates = dts.datestr2num(date)
         rating_hist.append(rating)
         date_hist.append(dates)
 
@@ -236,7 +260,7 @@ def make_plots():
     
     [wins,losses]=get_win_loss(names)
     total = np.add(wins, losses) 
-    
+
 
     r = list(range(0,len(names)))
    
@@ -273,7 +297,7 @@ def make_plots():
 
     ## Historical plot 
     plt.figure(2)
-    [rating_hist,date_list] = get_historical_rating (names)
+    [rating_hist,date_list] = get_historical_rating(names)
 
 
     for rating, date in zip(rating_hist, date_list) :
@@ -301,12 +325,9 @@ register.hide()
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
 
-# Statistics window
-statistics = Window(app, title="Statistikkvindu", layout="grid")
-statistics.hide()
-
-
-
 make_GUI()
+
+
+
 app.when_closed = exit 
 app.display()
