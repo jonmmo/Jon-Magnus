@@ -81,6 +81,61 @@ def new_player():
     save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
     New_player_window.show()
 
+def open_statistics():
+    df = get_all_players()
+    players = df['name'].tolist()
+    title = Text(statistics, text="Statistikk", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
+    label1 = Text(statistics, text="Spiller 1",  grid=[0,1])
+    one = Combo(statistics, options=players, grid=[1,1])
+    label1 = Text(statistics, text="Spiller 2",  grid=[2,1])
+    #players.append("ingen")
+    two = Combo(statistics, options=players, grid=[3,1])
+    save_button = PushButton(statistics, command=lambda:make_statistics(one.value, two.value), text="Se statistikk", grid=[4,1,2,1])
+    statistics.show()
+
+def make_statistics(player1, player2):
+    p1_text = Text(statistics, text ="     "+player1+"     ", grid=[1,3,2,1])
+    p2_text = Text(statistics, text ="     "+player2+"     ", grid=[3,3,2,1])
+    df = pd.read_sql_query("SELECT * FROM MATCH", con)
+    p1_wins_df = df.loc[df['winner'] == player1]
+    p1_loss_df = df.loc[df['loser'] == player1]
+    p2_wins_df = df.loc[df['winner'] == player2]
+    p2_loss_df = df.loc[df['loser'] == player2]
+    p1_wins = len(p1_wins_df)
+    p1_loss = len(p1_loss_df)
+    p2_wins = len(p2_wins_df)
+    p2_loss = len(p2_loss_df)
+    p1_highest_rating = max(p1_wins_df['winner_rating'].max(), p1_loss_df['loser_rating'].max()) 
+    p2_highest_rating = max(p2_wins_df['winner_rating'].max(), p2_loss_df['loser_rating'].max()) 
+    p1_lowest_rating = min(p1_wins_df['winner_rating'].min(), p1_loss_df['loser_rating'].min()) 
+    p2_lowest_rating = min(p2_wins_df['winner_rating'].min(), p2_loss_df['loser_rating'].min()) 
+
+    Text(statistics, text="Spilte kamper", grid=[0,4])
+    p1_wins_text = Text(statistics, text=str(p1_wins+p1_loss), grid=[1,4])
+    p2_wins_text = Text(statistics, text=str(p2_wins+p2_loss), grid=[3,4])
+
+    Text(statistics, text="Seiere", grid=[0,5])
+    p1_wins_text = Text(statistics, text=str(p1_wins), grid=[1,5])
+    p2_wins_text = Text(statistics, text=str(p2_wins), grid=[3,5])
+
+    Text(statistics, text="Tap", grid=[0,6])
+    p1_loss_text = Text(statistics, text=str(p1_loss), grid=[1,6])
+    p2_loss_text = Text(statistics, text=str(p2_loss), grid=[3,6])
+
+    Text(statistics, text="Seiere/Tap", grid=[0,7])
+    p1_loss_text = Text(statistics, text=str(p1_wins/p1_loss), grid=[1,7])
+    p2_loss_text = Text(statistics, text=str(p2_wins/p2_loss), grid=[3,7])
+
+    Text(statistics, text="Høyeste rating", grid=[0,8])
+    p1_highrating_text = Text(statistics, text=str(p1_highest_rating), grid=[1,8])
+    p2_highrating_text = Text(statistics, text=str(p2_highest_rating), grid=[3,8])
+
+    Text(statistics, text="Laveste rating", grid=[0,9])
+    p1_lowrating_text = Text(statistics, text=str(p1_lowest_rating), grid=[1,9])
+    p2_lowrating_text = Text(statistics, text=str(p2_lowest_rating), grid=[3,9])
+
+
+
 def make_GUI():
     # Get data
     data = get_all_players()
@@ -118,8 +173,8 @@ def make_GUI():
    
 
     register_button = PushButton(app, command=lambda:register_match(names), text="Registrer resultat", grid=[4,17,2,1])
-
-    new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[1,17,3,1])
+    statistics_button = PushButton(app, command=open_statistics, text="Se statistikk", grid=[2,17,2,1] )
+    new_player_button = PushButton(app, command=new_player, text="Registrer ny spiller", grid=[0,17,2,1])
 
     # plot_types =['win/loss', 'History']
     # plt_type = Combo(app,options=plot_types, grid=[2,18,2,1])
@@ -245,6 +300,10 @@ register.hide()
 # New Player window
 New_player_window = Window(app, title="Registrer resultat", layout="grid")
 New_player_window.hide()
+
+# Statistics window
+statistics = Window(app, title="Statistikkvindu", layout="grid")
+statistics.hide()
 
 
 
