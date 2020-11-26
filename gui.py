@@ -101,11 +101,19 @@ def new_player():
 def streak(names):
     streak_list=[]
     streak_value = "-" 
+    df_players = pd.read_sql_query ('SELECT * FROM USER',con)
+
+
+
     for player in names:
-       
+        los_streak = 0
+        win_streak = 0
+
+
         df = pd.read_sql_query("SELECT * FROM MATCH where winner=? or loser=?", con, params=[player,player])
         if len(df) == 0:
             streak_value="-"
+
 
         else:
 
@@ -117,17 +125,27 @@ def streak(names):
                 last_win = max(win_df['id'])
 
                 if last_los > last_win:
-                    streak_value = "L" + str(len(los_df[los_df['id'] > last_win ]))
+                    los_streak = len(los_df[los_df['id'] > last_win ])
+                    streak_value = "L" + str(los_streak)
+
                 elif last_los < last_win:
-                    streak_value = "W" + str(len(win_df[win_df['id'] > last_los ]))
+                    win_streak = len(win_df[win_df['id'] > last_los ])
+                    streak_value = "W" + str(win_streak)
             elif len(win_df)>0:
-                streak_value = "W" + str(len(win_df))
+                win_streak = len(win_df)
+                streak_value = "W" + str(win_streak)
             elif len(los_df)>0:
-                streak_value = "L" + str(len(los_df))
-                 
+                los_streak = len(los_df)
+                streak_value = "L" + str(los_streak)
+        with con as c: 
+            if win_streak > max(df_players[df_players.name == player].MAX_WIN_STREAK):
+                c.execute('''UPDATE USER SET MAX_WIN_STREAK = ? WHERE name = ?''', (win_streak, player))
+            elif los_streak > max(df_players[df_players.name == player].MAX_LOSE_STREAK):
+                c.execute('''UPDATE USER SET MAX_LOSE_STREAK = ? WHERE name = ?''', (los_streak, player))
+
+            
         streak_list.append(streak_value)
     return streak_list
-
 
 def open_statistics():
     df = get_all_players()
