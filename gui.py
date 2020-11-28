@@ -14,9 +14,11 @@ con = sl.connect('data.db')
 def push_button():
     headline.value = "HEADLIINE"
 
+
 def get_all_players():
     df = pd.read_sql_query('''SELECT * FROM USER''', con)
     return df
+
 
 def update_rating(player):
 
@@ -33,11 +35,13 @@ def update_rating(player):
     c.execute('''UPDATE USER SET rating = ? WHERE name = ?''', (new_rating, player))
     con.commit()
 
+
 def get_rating(player):
    
     r = pd.read_sql_query('''SELECT rating FROM USER WHERE name = ?''', con, params=[player])
     rating = r['rating'].iloc[0]
     return rating
+
 
 def save_match(winner, loser, perfect):
     sql = 'INSERT INTO MATCH (winner, loser, winner_rating, loser_rating, Date) values(?, ?, ?, ?, ?)'
@@ -63,6 +67,7 @@ def save_match(winner, loser, perfect):
     register.hide()
     make_GUI()
 
+
 def register_match(players):
     title = Text(register, text="Registrer resultat", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
     label1 = Text(register, text="Vinner:",  grid=[0,1])
@@ -74,9 +79,7 @@ def register_match(players):
 
     checkbox = CheckBox(register, text="7-0?", grid = [3,3])
     
-    
-    
-app = App("Pool system", layout = "grid")
+        
 def write_player(new_player):
     sql = 'INSERT INTO USER (name, rating) values(?, ?)'
     data = [
@@ -88,14 +91,13 @@ def write_player(new_player):
     New_player_window.hide()
     make_GUI()
 
+
 def new_player():
     title = Text(New_player_window, text="New Player", size=20, font="Comic Sans MS", color="blue", grid=[0,0,4,1])
     label1 = Text(New_player_window, text="New player:",  grid=[0,1])
     player = TextBox(New_player_window,grid=[0,2])
     save_button = PushButton(New_player_window, command=lambda:write_player(player.value ), text="Registrer ny spiller", grid=[0,3,2,1])
     New_player_window.show()
-
-
 
 
 def streak(names):
@@ -147,6 +149,7 @@ def streak(names):
         streak_list.append(streak_value)
     return streak_list
 
+
 def open_statistics():
     df = get_all_players()
     players = df['name'].tolist()
@@ -158,6 +161,7 @@ def open_statistics():
     two = Combo(statistics, options=players, grid=[3,1])
     save_button = PushButton(statistics, command=lambda:make_statistics(one.value, two.value), text="Se statistikk", grid=[4,1,2,1])
     statistics.show()
+
 
 def make_statistics(player1, player2):
     p1_text = Text(statistics, text ="     "+player1+"     ", grid=[1,3,2,1])
@@ -218,11 +222,6 @@ def make_statistics(player1, player2):
     Text(statistics, text="Laveste rating", grid=[0,12])
     Text(statistics, text=str(p1_lowest_rating), grid=[1,12])
     Text(statistics, text=str(p2_lowest_rating), grid=[3,12])
-
-
-
-
-
 
 
 def make_GUI():
@@ -288,16 +287,8 @@ def make_GUI():
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
 
     # image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
-
-
-
-
-
     # exit_button = PushButton(app, command=exit, text="Exit Program", grid=[4,20,2,1])
  
-
-
-
 
 def get_win_loss(names):
 
@@ -310,6 +301,7 @@ def get_win_loss(names):
         losses.append( df[df['loser']==x].shape[0])
      
     return[wins,losses]
+
 
 def get_historical_rating (names):
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
@@ -337,9 +329,6 @@ def get_historical_rating (names):
 
     return[rating_hist,date_hist]
         
-
-
-
 
 def make_plots():
     # print(plot_type)
@@ -401,10 +390,7 @@ def make_plots():
     plt.close()
 
 
-
-
-
-
+app = App("Pool system", layout = "grid")
 # Register match window
 register = Window(app, title="Registrer resultat", layout="grid")
 register.hide()
@@ -418,7 +404,6 @@ statistics = Window(app, title="Statistikk", layout="grid")
 statistics.hide()
 
 make_GUI()
-
 
 
 app.when_closed = exit 
