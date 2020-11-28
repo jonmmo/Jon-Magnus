@@ -216,7 +216,7 @@ def make_statistics(player1, player2):
     Text(statistics, text=str(p1_win_streak), grid=[1,10])
     Text(statistics, text=str(p2_win_streak), grid=[3,10])
 
-    Text(statistics, text="Høyeste tap-streak", grid=[0,1])
+    Text(statistics, text="Høyeste tap-streak", grid=[0,11])
     Text(statistics, text=str(p1_loss_streak), grid=[1,11])
     Text(statistics, text=str(p2_loss_streak), grid=[3,11])
 
