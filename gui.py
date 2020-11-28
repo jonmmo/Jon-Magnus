@@ -181,42 +181,56 @@ def make_statistics(player1, player2):
     p2_win_streak = int(pdf.loc[pdf['name'] == player2].MAX_WIN_STREAK)
     p1_loss_streak = int(pdf.loc[pdf['name'] == player1].MAX_LOSE_STREAK)
     p2_loss_streak = int(pdf.loc[pdf['name'] == player2].MAX_LOSE_STREAK)
+    internal_matches = p1_wins_df.loc[p1_wins_df['loser'] == player2] + p1_loss_df.loc[p1_loss_df['winner'] == player2]
+    tot_matches = len(internal_matches)
+    p1_int_wins = len(p1_wins_df.loc[p1_wins_df['loser'] == player2])
+    p2_int_wins = len(p1_loss_df.loc[p1_loss_df['winner'] == player2])
+    p1_perc = round(p1_int_wins*100/tot_matches,2)
+    p2_perc = round(p2_int_wins*100/tot_matches,2)
+    
 
-    Text(statistics, text="Spilte kamper", grid=[0,4])
-    Text(statistics, text=str(p1_wins+p1_loss), grid=[1,4])
-    Text(statistics, text=str(p2_wins+p2_loss), grid=[3,4])
+    Text(statistics, text="Interne kamper", grid=[0,4])
+    Text(statistics, text=str(tot_matches), grid=[2,4])
 
-    Text(statistics, text="Seiere", grid=[0,5])
-    Text(statistics, text=str(p1_wins), grid=[1,5])
-    Text(statistics, text=str(p2_wins), grid=[3,5])
+    Text(statistics, text="Kamper vunnet(%)", grid=[0,5])
+    Text(statistics, text=str(p1_int_wins)+"("+str(p1_perc)+")", grid=[1,5])
+    Text(statistics, text=str(p2_int_wins)+"("+str(p2_perc)+")", grid=[3,5])
 
-    Text(statistics, text="Tap", grid=[0,6])
-    Text(statistics, text=str(p1_loss), grid=[1,6])
-    Text(statistics, text=str(p2_loss), grid=[3,6])
+    Text(statistics, text="Totale kamper", grid=[0,6])
+    Text(statistics, text=str(p1_wins+p1_loss), grid=[1,6])
+    Text(statistics, text=str(p2_wins+p2_loss), grid=[3,6])
 
-    Text(statistics, text="K/D", grid=[0,7])
-    Text(statistics, text=str(round(p1_wins/p1_loss,2)), grid=[1,7])
-    Text(statistics, text=str(round(p2_wins/p2_loss,2)), grid=[3,7])
+    Text(statistics, text="Seiere", grid=[0,7])
+    Text(statistics, text=str(p1_wins), grid=[1,7])
+    Text(statistics, text=str(p2_wins), grid=[3,7])
 
-    Text(statistics, text="Høyeste vinn-streak", grid=[0,8])
-    Text(statistics, text=str(p1_win_streak), grid=[1,8])
-    Text(statistics, text=str(p2_win_streak), grid=[3,8])
+    Text(statistics, text="Tap", grid=[0,8])
+    Text(statistics, text=str(p1_loss), grid=[1,8])
+    Text(statistics, text=str(p2_loss), grid=[3,8])
 
-    Text(statistics, text="Høyeste tap-streak", grid=[0,9])
-    Text(statistics, text=str(p1_loss_streak), grid=[1,9])
-    Text(statistics, text=str(p2_loss_streak), grid=[3,9])
+    Text(statistics, text="K/D", grid=[0,9])
+    Text(statistics, text=str(round(p1_wins/p1_loss,2)), grid=[1,9])
+    Text(statistics, text=str(round(p2_wins/p2_loss,2)), grid=[3,9])
 
-    Text(statistics, text="Rating", grid=[0,10])
-    Text(statistics, text=str(p1_rating), grid=[1,10])
-    Text(statistics, text=str(p2_rating), grid=[3,10])
+    Text(statistics, text="Høyeste vinn-streak", grid=[0,10])
+    Text(statistics, text=str(p1_win_streak), grid=[1,10])
+    Text(statistics, text=str(p2_win_streak), grid=[3,10])
 
-    Text(statistics, text="Høyeste rating", grid=[0,11])
-    Text(statistics, text=str(p1_highest_rating), grid=[1,11])
-    Text(statistics, text=str(p2_highest_rating), grid=[3,11])
+    Text(statistics, text="Høyeste tap-streak", grid=[0,1])
+    Text(statistics, text=str(p1_loss_streak), grid=[1,11])
+    Text(statistics, text=str(p2_loss_streak), grid=[3,11])
 
-    Text(statistics, text="Laveste rating", grid=[0,12])
-    Text(statistics, text=str(p1_lowest_rating), grid=[1,12])
-    Text(statistics, text=str(p2_lowest_rating), grid=[3,12])
+    Text(statistics, text="Rating", grid=[0,12])
+    Text(statistics, text=str(p1_rating), grid=[1,12])
+    Text(statistics, text=str(p2_rating), grid=[3,12])
+
+    Text(statistics, text="Høyeste rating", grid=[0,13])
+    Text(statistics, text=str(p1_highest_rating), grid=[1,13])
+    Text(statistics, text=str(p2_highest_rating), grid=[3,13])
+
+    Text(statistics, text="Laveste rating", grid=[0,14])
+    Text(statistics, text=str(p1_lowest_rating), grid=[1,14])
+    Text(statistics, text=str(p2_lowest_rating), grid=[3,14])
 
 
 def make_GUI():
