@@ -7,12 +7,7 @@ from datetime import datetime
 import numpy as np
 import time 
 
-#from utils import *
-
 con = sl.connect('data.db')
-
-def push_button():
-    headline.value = "HEADLIINE"
 
 
 def get_all_players():
@@ -199,7 +194,7 @@ def make_statistics(player1, player2):
     Text(statistics, text=str(p1_loss), grid=[1,6])
     Text(statistics, text=str(p2_loss), grid=[3,6])
 
-    Text(statistics, text="Seiere/Tap", grid=[0,7])
+    Text(statistics, text="K/D", grid=[0,7])
     Text(statistics, text=str(round(p1_wins/p1_loss,2)), grid=[1,7])
     Text(statistics, text=str(round(p2_wins/p2_loss,2)), grid=[3,7])
 
