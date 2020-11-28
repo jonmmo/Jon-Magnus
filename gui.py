@@ -198,11 +198,11 @@ def make_statistics(player1, player2):
     Text(statistics, text=str(round(p1_wins/p1_loss,2)), grid=[1,7])
     Text(statistics, text=str(round(p2_wins/p2_loss,2)), grid=[3,7])
 
-    Text(statistics, text="Høyeste win-streak", grid=[0,8])
+    Text(statistics, text="Høyeste vinn-streak", grid=[0,8])
     Text(statistics, text=str(p1_win_streak), grid=[1,8])
     Text(statistics, text=str(p2_win_streak), grid=[3,8])
 
-    Text(statistics, text="Høyeste win-streak", grid=[0,9])
+    Text(statistics, text="Høyeste tap-streak", grid=[0,9])
     Text(statistics, text=str(p1_loss_streak), grid=[1,9])
     Text(statistics, text=str(p2_loss_streak), grid=[3,9])
 
