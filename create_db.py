@@ -1,4 +1,5 @@
 import sqlite3 as sl
+import pandas as pd 
 
 con = sl.connect('data.db')
 
@@ -19,6 +20,8 @@ with con:
             loser TEXT,
             winner_rating INTEGER,
             loser_rating INTEGER
+            
+
         );       
     """)
 
@@ -33,3 +36,16 @@ data = [
 
 with con:
     con.executemany(sql, data)
+
+
+
+import Add_date
+import Add_streak
+import Add_starr 
+
+
+
+con = sl.connect('data.db')
+df_players2 = pd.read_sql_query("SELECT * FROM Match", con)
+print(df_players2)
+

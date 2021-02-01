@@ -19,12 +19,12 @@ def get_all_players():
     return df
 
 def update_rating(player):
-
+    weight = 15 # 
     df = pd.read_sql_query("SELECT * FROM MATCH", con)
-    player_opt_ranking_total = df.loc[df['winner'] == player, 'loser_rating'].sum() + df.loc[df['loser'] == player, 'winner_rating'].sum()
+    player_opt_ranking_total = (df.loc[df['winner'] == player, 'loser_rating'].sum() + df.loc[df['loser'] == player, 'winner_rating'].sum()) + 1000*weight # 1000*weight  is to remove large changes
 
     player_win_loss = len(df[df['winner']==player]) - len(df[df['loser']==player])
-    total_games = len(df[df['winner']==player]) + len(df[df['loser']==player])
+    total_games = len(df[df['winner']==player]) + len(df[df['loser']==player]) + weight #weight is removing large changes early in the season
   
     new_rating = round((player_opt_ranking_total + 400 * player_win_loss)/total_games)
 
@@ -286,6 +286,7 @@ def make_GUI():
     make_plots()
     image = Picture(app,image="Plot.png",grid=[1,19,3,3])
     image2 = Picture(app,image="Historic_plot.png",grid=[4,19,3,3])
+    
 
     # image_pie = Picture(app,image="pie.png",grid=[7,19,3,3])
 
