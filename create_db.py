@@ -25,6 +25,20 @@ with con:
         );       
     """)
 
+sql = 'INSERT INTO MATCH (id, winner, loser, winner_rating, loser_rating) values(?, ?, ?, ?, ?)'
+data = [
+    (0,'Jon Magnus','Jon Magnus',1000,1000),
+    (1,'Henrik', 'Henrik',1000,1000),
+    (2,'Petter', 'Petter',1000,1000),
+    (3,'Thomas', 'Thomas',1000,1000),
+    (4,'Benjamin', 'Benjamin',1000,1000)
+]
+
+
+with con:
+    con.executemany(sql, data)
+
+
 sql = 'INSERT INTO USER (name, rating) values(?, ?)'
 data = [
     ('Jon Magnus', 1000),
@@ -46,6 +60,6 @@ import Add_starr
 
 
 con = sl.connect('data.db')
-df_players2 = pd.read_sql_query("SELECT * FROM Match", con)
-print(df_players2)
+date = pd.read_sql_query("SELECT * FROM Match", con)
+print(date)
 

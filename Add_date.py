@@ -1,6 +1,6 @@
 import sqlite3 as sl
 import pandas as pd 
-
+from datetime import datetime
 
 con = sl.connect('data.db')
 
@@ -17,18 +17,14 @@ print(match)
 
 
 
+now =  (datetime.now())
+now_str = (now.strftime("%Y-%m-%d %H:%M:%S"))
 
-# with con:
-#     con.execute("""
-#         UPDATE MATCH
-#         SET 
-#             DATE = '2020-11-02 12:00:00'
-#     """)
-
+c = con.cursor()
+with con:  
+    con.execute('''UPDATE MATCH  SET DATE = ? ''', [now_str])
 
 
 
-
-
-
-
+database = pd.read_sql_query("SELECT * FROM Match", con)
+print(match)
